@@ -19,51 +19,51 @@ extension Effect where Output: SingleCheckpointAction {
 }
 
 #if DEBUG
-extension TestStore where LocalState: Equatable, Action: (Equatable & SingleCheckpointAction) {
+extension TestStore where ScopedState: Equatable, Action: (Equatable & SingleCheckpointAction) {
   public func receiveCheckpoint<Value>(
     _ expectedAction: CheckpointAction,
-    of toState: WritableKeyPath<LocalState, CheckpointState<Value>>,
+    of toState: WritableKeyPath<ScopedState, CheckpointState<Value>>,
     file: StaticString = #file,
     line: UInt = #line,
-    _ update: @escaping (inout LocalState) throws -> Void = { _ in }
-  ) {
-    receiveCheckpoint(expectedAction, in: /Action.checkpoint, of: toState, file: file, line: line, update)
+    _ update: @escaping (inout ScopedState) throws -> Void = { _ in }
+  ) async {
+      await receiveCheckpoint(expectedAction, in: /Action.checkpoint, of: toState, file: file, line: line, update)
   }
 }
 
-extension TestStore where LocalState: Equatable, LocalAction: SingleCheckpointAction {
+extension TestStore where ScopedState: Equatable, ScopedAction: SingleCheckpointAction {
   public func sendCheckpoint<Value>(
     _ action: CheckpointAction,
-    of toState: WritableKeyPath<LocalState, CheckpointState<Value>>,
+    of toState: WritableKeyPath<ScopedState, CheckpointState<Value>>,
     file: StaticString = #file,
     line: UInt = #line,
-    _ update: @escaping (inout LocalState) throws -> Void = { _ in }
+    _ update: @escaping (inout ScopedState) throws -> Void = { _ in }
   ) {
-    sendCheckpoint(action, in: /LocalAction.checkpoint, of: toState, file: file, line: line, update)
+      sendCheckpoint(action, in: /ScopedAction.checkpoint, of: toState, file: file, line: line, update)
   }
 }
 
 extension TestStore.Step where Action: SingleCheckpointAction {
   public static func receiveCheckpoint<Value>(
     _ action: CheckpointAction,
-    of toState: WritableKeyPath<LocalState, CheckpointState<Value>>,
+    of toState: WritableKeyPath<ScopedState, CheckpointState<Value>>,
     file: StaticString = #file,
     line: UInt = #line,
-    _ update: @escaping (inout LocalState) throws -> Void = { _ in }
+    _ update: @escaping (inout ScopedState) throws -> Void = { _ in }
   ) -> Self {
     .receiveCheckpoint(action, in: /Action.checkpoint, of: toState, file: file, line: line, update)
   }
 }
 
-extension TestStore.Step where LocalAction: SingleCheckpointAction {
+extension TestStore.Step where ScopedAction: SingleCheckpointAction {
   public static func sendCheckpoint<Value>(
     _ action: CheckpointAction,
-    of toState: WritableKeyPath<LocalState, CheckpointState<Value>>,
+    of toState: WritableKeyPath<ScopedState, CheckpointState<Value>>,
     file: StaticString = #file,
     line: UInt = #line,
-    _ update: @escaping (inout LocalState) throws -> Void = { _ in }
+    _ update: @escaping (inout ScopedState) throws -> Void = { _ in }
   ) -> Self {
-    .sendCheckpoint(action, in: /LocalAction.checkpoint, of: toState, file: file, line: line, update)
+    .sendCheckpoint(action, in: /ScopedAction.checkpoint, of: toState, file: file, line: line, update)
   }
 }
 #endif

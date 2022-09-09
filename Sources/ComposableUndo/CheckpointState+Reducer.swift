@@ -1,5 +1,6 @@
 import Combine
 import ComposableArchitecture
+import Foundation
 
 extension Reducer {
   public func trackCheckpoints<Value>(
@@ -81,7 +82,6 @@ extension CheckpointState {
     }
   }
 }
-
 
 extension UndoManager {
   fileprivate func registerUndo(_ label: String, with subject: PassthroughSubject<CheckpointAction, Never>) {
